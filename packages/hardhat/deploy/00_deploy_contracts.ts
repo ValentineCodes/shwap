@@ -35,7 +35,7 @@ const deployContracts: DeployFunction = async function (
   await deploy('Shwap', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: [usdt.address],
+    args: [await usdt.getAddress()],
     log: true
     //waitConfirmations: 5,
   });
