@@ -1,13 +1,11 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
+import { Contract } from 'ethers';
 
 /**
- * Deploys mocks using the deployer account and
- * constructor arguments set to the deployer address
- *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployMocks: DeployFunction = async function (
+const deployContracts: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
   /*
@@ -21,9 +19,9 @@ const deployMocks: DeployFunction = async function (
     You can run the `yarn account` command to check your balance in every network.
   */
   const { deployer } = await hre.getNamedAccounts();
-  const { deploy, log } = hre.deployments;
+  const { deploy } = hre.deployments;
 
-  await deploy('Disease', {
+  await deploy('USDT', {
     from: deployer,
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
@@ -31,17 +29,20 @@ const deployMocks: DeployFunction = async function (
     autoMine: true
   });
 
-  await deploy('Ogre', {
-    from: deployer,
-    log: true,
-    autoMine: true
-  });
+  // Get the deployed contract to interact with it after deploying.
+  const usdt = await hre.ethers.getContract<Contract>('USDT', deployer);
 
-  log('🚀 Mocks Deployed!\n');
+  await deploy('Shwap', {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    args: [usdt.address],
+    log: true
+    //waitConfirmations: 5,
+  });
 };
 
-export default deployMocks;
+export default deployContracts;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags mocks
-deployMocks.tags = ['mocks'];
+// e.g. yarn deploy --tags Contracts
+deployContracts.tags = ['shwap', 'usdt'];
