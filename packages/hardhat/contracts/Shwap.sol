@@ -15,7 +15,7 @@ error Shwap__ZeroValue();
  * @title Shwap
  * @author Valentine Orga
  * @notice Empty Shwap.sol that just outlines what features could be part of the challenge (up to you!)
- * @dev We want to create an automatic market where our contract will hold reserves of both ETH and 🎈 Balloons. These reserves will provide liquidity that allows anyone to swap between the assets.
+ * @dev We want to create an automatic market where our contract will hold reserves of both ETH and 🎈 USDT. These reserves will provide liquidity that allows anyone to swap between the assets.
  * NOTE: functions outlined here are what work with the front end of this branch/repo. Also return variable names that may need to be specified exactly may be referenced (if you are confused, see solutions folder in this repo and/or cross reference with front-end code).
  */
 contract Shwap {
@@ -69,10 +69,10 @@ contract Shwap {
     /* ========== MUTATIVE FUNCTIONS ========== */
 
     /**
-     * @notice initializes amount of tokens that will be transferred to the Shwap itself from the erc20 contract mintee (and only them based on how Balloons.sol is written). Loads contract up with both ETH and Balloons.
+     * @notice initializes amount of tokens that will be transferred to the Shwap itself from the erc20 contract mintee (and only them based on how USDT.sol is written). Loads contract up with both ETH and USDT.
      * @param tokens amount to be transferred to Shwap
      * @return totalLiquidity is the number of LPTs minting as a result of deposits made to Shwap contract
-     * NOTE: since ratio is 1:1, this is fine to initialize the totalLiquidity (wrt to balloons) as equal to eth balance of contract.
+     * NOTE: since ratio is 1:1, this is fine to initialize the totalLiquidity (wrt to usdt) as equal to eth balance of contract.
      */
     function init(uint256 tokens) public payable returns (uint256) {
         if (totalLiquidity > 0) revert Shwap__AlreadyHasLiquidity();
@@ -106,7 +106,7 @@ contract Shwap {
     }
 
     /**
-     * @notice sends Ether to Shwap in exchange for $BAL
+     * @notice sends Ether to Shwap in exchange for $USDT
      */
     function ethToToken() public payable returns (uint256 tokenOutput) {
         if (msg.value == 0) revert Shwap__InsufficientAmount();
@@ -117,11 +117,11 @@ contract Shwap {
 
         if (token.transfer(msg.sender, tokenOutput) == false) revert Shwap__TokenTransferFailed();
 
-        emit EthToTokenSwap(msg.sender, "Eth to Balloons", msg.value, tokenOutput);
+        emit EthToTokenSwap(msg.sender, "Eth to USDT", msg.value, tokenOutput);
     }
 
     /**
-     * @notice sends $BAL tokens to Shwap in exchange for Ether
+     * @notice sends $USDT tokens to Shwap in exchange for Ether
      */
     function tokenToEth(uint256 tokenInput) public returns (uint256 ethOutput) {
         if (tokenInput == 0) revert Shwap__InsufficientAmount();
@@ -134,12 +134,12 @@ contract Shwap {
         (bool success, ) = msg.sender.call{ value: ethOutput }("");
         if (!success) revert Shwap__EthTransferFailed();
 
-        emit TokenToEthSwap(msg.sender, "Balloons to ETH", ethOutput, tokenInput);
+        emit TokenToEthSwap(msg.sender, "USDT to ETH", ethOutput, tokenInput);
     }
 
     /**
-     * @notice allows deposits of $BAL and $ETH to liquidity pool
-     * NOTE: parameter is the msg.value sent with this function call. That amount is used to determine the amount of $BAL needed as well and taken from the depositor.
+     * @notice allows deposits of $USDT and $ETH to liquidity pool
+     * NOTE: parameter is the msg.value sent with this function call. That amount is used to determine the amount of $USDT needed as well and taken from the depositor.
      * NOTE: user has to make sure to give Shwap approval to spend their tokens on their behalf by calling approve function prior to this function call.
      * NOTE: Equal parts of both assets will be removed from the user's wallet with respect to the price outlined by the AMM.
      */
@@ -160,7 +160,7 @@ contract Shwap {
     }
 
     /**
-     * @notice allows withdrawal of $BAL and $ETH from liquidity pool
+     * @notice allows withdrawal of $USDT and $ETH from liquidity pool
      * NOTE: with this current code, the msg caller could end up getting very little back if the liquidity is super low in the pool. I guess they could see that with the UI.
      */
     function withdraw(uint256 amount) public returns (uint256 eth_amount, uint256 token_amount) {
