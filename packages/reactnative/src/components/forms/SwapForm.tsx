@@ -21,7 +21,7 @@ export default function SwapForm({}: Props) {
         }
       >
         <AmountInput
-          title={isFlipped? "Buy" : "Sell"}
+          title={isFlipped ? 'Buy' : 'Sell'}
           value={sellAmount}
           token="ETH"
           balance="1"
@@ -37,7 +37,7 @@ export default function SwapForm({}: Props) {
         />
 
         <AmountInput
-          title={isFlipped? "Sell" : "Buy"}
+          title={isFlipped ? 'Sell' : 'Buy'}
           value={buyAmount}
           token="USDT"
           balance="3310.25"
@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     marginBottom: -18,
     zIndex: 10
   },
-
   button: {
     marginTop: 20,
     width: '90%',
