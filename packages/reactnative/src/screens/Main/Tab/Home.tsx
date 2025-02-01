@@ -1,20 +1,29 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import SwapForm from '../../../components/forms/SwapForm';
 import Liquidity from './modules/home/Liquidity';
 
 type Props = {};
 
-export default function Example({}: Props) {
+export default function Home({}: Props) {
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+    <ScrollView style={styles.container}>
       <View style={{ padding: 8, paddingVertical: 32, alignItems: 'center' }}>
         <Text variant="displaySmall" style={{ fontWeight: 'bold' }}>
           Shwap
         </Text>
 
         <Liquidity />
+        <SwapForm />
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
+  }
+});

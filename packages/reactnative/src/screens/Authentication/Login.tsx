@@ -10,14 +10,13 @@ import {
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { useToast } from 'react-native-toast-notifications';
-import MaterialIcons from 'react-native-vector-icons/dist/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import ConsentModal from '../../components/modals/ConsentModal';
 import { useSecureStorage } from '../../hooks/useSecureStorage';
 import { loginUser, logoutUser } from '../../store/reducers/Auth';
 import { clearRecipients } from '../../store/reducers/Recipients';
 import { COLORS } from '../../utils/constants';
-import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
+import { WINDOW_WIDTH } from '../../utils/styles';
 
 type Props = {};
 
