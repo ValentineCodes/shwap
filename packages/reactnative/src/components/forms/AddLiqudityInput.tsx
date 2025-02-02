@@ -6,6 +6,7 @@ import { Text, TextInput } from 'react-native-paper';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
+import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
 import { parseBalance } from '../../utils/helperFunctions';
@@ -38,6 +39,16 @@ export default function AddLiqudityInput({}: Props) {
   const [ethAmount, setEthAmount] = useState('');
   const [usdtAmount, setUsdtAmount] = useState('');
 
+  const { write: deposit } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'deposit'
+  });
+
+  const { write: approve } = useScaffoldContractWrite({
+    contractName: 'USDT',
+    functionName: 'approve'
+  });
+
   const handleEthAmountChange = (value: string) => {
     if (value.trim() === '') {
       setEthAmount('');
@@ -56,6 +67,31 @@ export default function AddLiqudityInput({}: Props) {
 
     setUsdtAmount(formatEther(usdtAmount));
   };
+
+  const approveShwap = async () => {
+    try {
+      if (usdtAmount === '') return;
+
+      await approve({
+        args: [shwapContract?.address, parseEther(usdtAmount) + 1n]
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const depositLiquidity = async () => {
+    try {
+      if (ethAmount === '') return;
+
+      await deposit({ value: parseEther(ethAmount) });
+
+      setEthAmount('');
+      setUsdtAmount('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Liquidity</Text>
@@ -73,7 +109,7 @@ export default function AddLiqudityInput({}: Props) {
           onChangeText={handleEthAmountChange}
         />
 
-        <Pressable onPress={() => null} style={styles.addButton}>
+        <Pressable onPress={depositLiquidity} style={styles.addButton}>
           <Text style={styles.addButtonLabel}>Deposit</Text>
         </Pressable>
       </View>
@@ -96,7 +132,7 @@ export default function AddLiqudityInput({}: Props) {
           disabled
         />
 
-        <Pressable onPress={() => null} style={styles.approveButton}>
+        <Pressable onPress={approveShwap} style={styles.approveButton}>
           <Text style={styles.approveButtonLabel}>Approve</Text>
         </Pressable>
       </View>
