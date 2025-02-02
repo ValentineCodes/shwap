@@ -1,9 +1,13 @@
-import { formatEther } from 'ethers';
+import { Address } from 'abitype';
+import { formatEther, parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
+import useBalance from '../../hooks/scaffold-eth/useBalance';
+import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
 import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
+import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
 
@@ -20,18 +24,42 @@ export default function WithdrawLiquidityInput({}: Props) {
     functionName: 'liquidity',
     args: [account.address]
   });
+  const { data: totalLiquidity } = useScaffoldContractRead({
+    contractName: 'Shwap',
+    functionName: 'totalLiquidity'
+  });
+  const { data: shwapContract } = useDeployedContractInfo('Shwap');
+  const { data: usdtContract } = useDeployedContractInfo('USDT');
+
+  const { balance: ethReserve } = useBalance({
+    // @ts-ignore
+    address: shwapContract?.address
+  });
+  const { balance: usdtReserve } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: shwapContract?.address as Address
+  });
 
   const handleInputChange = (value: string) => {
     if (value.trim() === '') {
+      setWithdrawAmount('');
       setEthAmount('');
       setUsdtAmount('');
       return;
     }
-    const ethAmount = Number(value);
+    const amount = Number(value);
 
-    if (isNaN(ethAmount)) return;
+    if (isNaN(amount)) return;
 
     setWithdrawAmount(value.trim());
+
+    if (!totalLiquidity || !ethReserve || !usdtReserve) return;
+
+    const ethAmount = parseEther(value) * (ethReserve / totalLiquidity);
+    const usdtAmount = parseEther(value) * (usdtReserve / totalLiquidity);
+
+    setEthAmount(formatEther(ethAmount));
+    setUsdtAmount(formatEther(usdtAmount));
   };
   return (
     <View style={styles.container}>
