@@ -8,6 +8,7 @@ import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
 import useNetwork from '../../hooks/scaffold-eth/useNetwork';
 import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
+import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
 import { parseBalance } from '../../utils/helperFunctions';
@@ -48,6 +49,21 @@ export default function SwapForm({}: Props) {
   const { readContract: getPrice } = useScaffoldContractRead({
     contractName: 'Shwap',
     functionName: 'price'
+  });
+
+  const { write: ethToToken } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'ethToToken'
+  });
+
+  const { write: tokenToEth } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'tokenToEth'
+  });
+
+  const { write: approve } = useScaffoldContractWrite({
+    contractName: 'USDT',
+    functionName: 'approve'
   });
 
   const handleInputChange = async (value: string) => {
@@ -94,6 +110,29 @@ export default function SwapForm({}: Props) {
     setBuyAmount('');
   };
 
+  const swap = async () => {
+    try {
+      if (isFlipped) {
+        if (buyAmount === '') return;
+
+        await approve({
+          args: [shwapContract?.address, parseEther(buyAmount)]
+        });
+
+        await tokenToEth({ args: [parseEther(buyAmount)] });
+      } else {
+        if (sellAmount === '') return;
+
+        await ethToToken({ value: parseEther(sellAmount) });
+      }
+
+      setSellAmount('');
+      setBuyAmount('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View
@@ -131,7 +170,7 @@ export default function SwapForm({}: Props) {
       </View>
       <Button
         mode="contained"
-        onPress={() => null}
+        onPress={swap}
         style={styles.button}
         labelStyle={styles.buttonLabel}
       >
