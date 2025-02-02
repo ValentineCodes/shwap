@@ -27,15 +27,14 @@ export default function AddLiqudityInput({}: Props) {
     userAddress: account.address as Address
   });
 
-  const { balance: shwapEthBalance } = useBalance({
+  const { balance: ethReserve } = useBalance({
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: shwapUsdtBalance } = useTokenBalance({
+  const { balance: usdtReserve } = useTokenBalance({
     token: usdtContract?.address,
     userAddress: shwapContract?.address as Address
   });
-  1;
   const [ethAmount, setEthAmount] = useState('');
   const [usdtAmount, setUsdtAmount] = useState('');
 
@@ -61,9 +60,9 @@ export default function AddLiqudityInput({}: Props) {
 
     setEthAmount(value.trim());
 
-    if (!shwapEthBalance || !shwapUsdtBalance) return;
+    if (!ethReserve || !usdtReserve) return;
 
-    const usdtAmount = parseEther(value) * (shwapUsdtBalance / shwapEthBalance);
+    const usdtAmount = parseEther(value) * (usdtReserve / ethReserve);
 
     setUsdtAmount(formatEther(usdtAmount));
   };

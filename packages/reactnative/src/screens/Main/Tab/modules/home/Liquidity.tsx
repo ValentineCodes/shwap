@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import AddLiquidityInput from '../../../../../components/forms/AddLiqudityInput';
 import WithdrawLiquidityInput from '../../../../../components/forms/WithdrawLiquidityInput';
-import useAccount from '../../../../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../../../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../../../../hooks/scaffold-eth/useDeployedContractInfo';
-import useNetwork from '../../../../../hooks/scaffold-eth/useNetwork';
 import { useTokenBalance } from '../../../../../hooks/useTokenBalance';
 import { parseBalance } from '../../../../../utils/helperFunctions';
 import { FONT_SIZE } from '../../../../../utils/styles';
@@ -14,15 +12,9 @@ import { FONT_SIZE } from '../../../../../utils/styles';
 type Props = {};
 
 export default function Liquidity({}: Props) {
-  const [depositAmount, setDepositAmount] = useState('');
-  const network = useNetwork();
-  const account = useAccount();
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
   const { data: usdtContract } = useDeployedContractInfo('USDT');
 
-  const { balance } = useBalance({
-    address: account.address
-  });
   const { balance: shwapETHBalance } = useBalance({
     // @ts-ignore
     address: shwapContract?.address
@@ -46,18 +38,7 @@ export default function Liquidity({}: Props) {
       <View style={styles.inputContainer}>
         <AddLiquidityInput />
 
-        <WithdrawLiquidityInput
-          title="Withdraw Liquidity"
-          value={depositAmount}
-          buttonLabel="Withdraw"
-          balance={
-            balance !== null
-              ? `${parseBalance(balance)} ${network.currencySymbol}`
-              : null
-          }
-          onSubmit={() => null}
-          onChange={setDepositAmount}
-        />
+        <WithdrawLiquidityInput />
       </View>
     </View>
   );
