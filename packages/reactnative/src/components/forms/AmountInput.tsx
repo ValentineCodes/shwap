@@ -7,7 +7,7 @@ type Props = {
   title: string;
   value: string;
   token: string;
-  balance: string | number;
+  balance: string | null;
   isDisabled: boolean;
   onChange: (value: string) => void;
 };

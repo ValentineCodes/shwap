@@ -13,6 +13,9 @@ type Props = {
   args?: any[];
 };
 
+interface ReadContractConfig {
+  args?: any[];
+}
 /**
  * This automatically loads (by name) the contract ABI and address from
  * the contracts present in deployedContracts.ts & externalContracts.ts corresponding to targetNetworks configured in scaffold.config.ts
@@ -74,6 +77,37 @@ export default function useScaffoldContractRead({
     }
   }
 
+  async function readContract({ args }: ReadContractConfig) {
+    try {
+      setIsLoading(true);
+      const provider = new JsonRpcProvider(network.provider);
+
+      const accounts = await getItem('accounts');
+
+      const activeAccount = Array.from(accounts).find(
+        account =>
+          account.address.toLowerCase() ===
+          connectedAccount.address.toLowerCase()
+      );
+
+      const wallet = new Wallet(activeAccount.privateKey, provider);
+
+      const contract = new Contract(
+        deployedContractData.address,
+        deployedContractData.abi,
+        wallet
+      );
+
+      const result = await contract[functionName](...(args || []));
+
+      return result;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchData();
   }, [isLoadingDeployedContractData]);
@@ -82,6 +116,7 @@ export default function useScaffoldContractRead({
     data,
     isLoading,
     error,
-    refetch: fetchData
+    refetch: fetchData,
+    readContract
   };
 }
