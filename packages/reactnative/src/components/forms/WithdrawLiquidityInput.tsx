@@ -1,12 +1,14 @@
 import { Address } from 'abitype';
-import { formatEther, parseEther } from 'ethers';
-import React, { useState } from 'react';
+import { formatEther, JsonRpcProvider, parseEther } from 'ethers';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
+import useNetwork from '../../hooks/scaffold-eth/useNetwork';
 import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
+import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
@@ -18,16 +20,19 @@ export default function WithdrawLiquidityInput({}: Props) {
   const [ethAmount, setEthAmount] = useState('');
   const [usdtAmount, setUsdtAmount] = useState('');
 
+  const network = useNetwork();
   const account = useAccount();
-  const { data: liquidity } = useScaffoldContractRead({
-    contractName: 'Shwap',
-    functionName: 'liquidity',
-    args: [account.address]
-  });
-  const { data: totalLiquidity } = useScaffoldContractRead({
-    contractName: 'Shwap',
-    functionName: 'totalLiquidity'
-  });
+  const { data: liquidity, refetch: refetchLiquidity } =
+    useScaffoldContractRead({
+      contractName: 'Shwap',
+      functionName: 'liquidity',
+      args: [account.address]
+    });
+  const { data: totalLiquidity, refetch: refetchTotalLiquidity } =
+    useScaffoldContractRead({
+      contractName: 'Shwap',
+      functionName: 'totalLiquidity'
+    });
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
   const { data: usdtContract } = useDeployedContractInfo('USDT');
 
@@ -38,6 +43,11 @@ export default function WithdrawLiquidityInput({}: Props) {
   const { balance: usdtReserve } = useTokenBalance({
     token: usdtContract?.address,
     userAddress: shwapContract?.address as Address
+  });
+
+  const { write: withdraw } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'withdraw'
   });
 
   const handleInputChange = (value: string) => {
@@ -61,6 +71,37 @@ export default function WithdrawLiquidityInput({}: Props) {
     setEthAmount(formatEther(ethAmount));
     setUsdtAmount(formatEther(usdtAmount));
   };
+
+  const withdrawLiquidity = async () => {
+    try {
+      if (withdrawAmount === '') return;
+
+      await withdraw({ args: [parseEther(withdrawAmount)] });
+
+      setWithdrawAmount('');
+      setEthAmount('');
+      setUsdtAmount('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    const provider = new JsonRpcProvider(network.provider);
+
+    (async () => {
+      provider.off('block');
+
+      provider.on('block', async blockNumber => {
+        await refetchLiquidity();
+        await refetchTotalLiquidity();
+      });
+    })();
+
+    return () => {
+      provider.off('block');
+    };
+  }, [network]);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Withdraw Liquidity</Text>
@@ -78,7 +119,7 @@ export default function WithdrawLiquidityInput({}: Props) {
           onChangeText={handleInputChange}
         />
 
-        <Pressable onPress={() => null} style={styles.button}>
+        <Pressable onPress={withdrawLiquidity} style={styles.button}>
           <Text style={styles.buttonLabel}>Withdraw</Text>
         </Pressable>
       </View>
