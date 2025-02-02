@@ -7,7 +7,8 @@ type Props = {
   title: string;
   value: string;
   token: string;
-  balance: string | number;
+  balance: string | null;
+  isDisabled: boolean;
   onChange: (value: string) => void;
 };
 
@@ -16,6 +17,7 @@ export default function AmountInput({
   value,
   token,
   balance,
+  isDisabled,
   onChange
 }: Props) {
   return (
@@ -27,12 +29,14 @@ export default function AmountInput({
           value={value}
           mode="outlined"
           style={styles.inputField}
+          outlineStyle={{ borderWidth: 0 }}
           outlineColor="transparent"
           activeOutlineColor="transparent"
           placeholderTextColor="#ccc"
           cursorColor="#ccc"
           placeholder="0"
           onChangeText={onChange}
+          disabled={isDisabled}
         />
         <Text style={styles.token}>{token}</Text>
       </View>

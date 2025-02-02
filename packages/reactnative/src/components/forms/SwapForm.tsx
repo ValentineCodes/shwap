@@ -1,7 +1,17 @@
+import { Address } from 'abitype';
+import { formatEther, parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton } from 'react-native-paper';
+import useAccount from '../../hooks/scaffold-eth/useAccount';
+import useBalance from '../../hooks/scaffold-eth/useBalance';
+import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
+import useNetwork from '../../hooks/scaffold-eth/useNetwork';
+import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
+import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
+import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
+import { parseBalance } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 import AmountInput from './AmountInput';
 
@@ -11,6 +21,118 @@ export default function SwapForm({}: Props) {
   const [sellAmount, setSellAmount] = useState('');
   const [buyAmount, setBuyAmount] = useState('');
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const network = useNetwork();
+  const account = useAccount();
+  const { data: shwapContract } = useDeployedContractInfo('Shwap');
+  const { data: usdtContract } = useDeployedContractInfo('USDT');
+
+  // token balances
+  const { balance: ethBalance } = useBalance({
+    address: account.address
+  });
+  const { balance: usdtBalance } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: account.address as Address
+  });
+
+  // reserves
+  const { balance: ethReserve } = useBalance({
+    // @ts-ignore
+    address: shwapContract?.address
+  });
+  const { balance: usdtReserve } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: shwapContract?.address as Address
+  });
+
+  const { readContract: getPrice } = useScaffoldContractRead({
+    contractName: 'Shwap',
+    functionName: 'price'
+  });
+
+  const { write: ethToToken } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'ethToToken'
+  });
+
+  const { write: tokenToEth } = useScaffoldContractWrite({
+    contractName: 'Shwap',
+    functionName: 'tokenToEth'
+  });
+
+  const { write: approve } = useScaffoldContractWrite({
+    contractName: 'USDT',
+    functionName: 'approve'
+  });
+
+  const handleInputChange = async (value: string) => {
+    if (value.trim() === '') {
+      setSellAmount('');
+      setBuyAmount('');
+      return;
+    }
+
+    const amount = Number(value);
+
+    if (isNaN(amount)) return;
+
+    if (isFlipped) {
+      setBuyAmount(value.trim());
+    } else {
+      setSellAmount(value.trim());
+    }
+
+    if (!ethReserve || !usdtReserve) return;
+
+    try {
+      if (isFlipped) {
+        const price = await getPrice({
+          args: [parseEther(value), usdtReserve, ethReserve]
+        });
+
+        setSellAmount(parseBalance(price));
+      } else {
+        const price = await getPrice({
+          args: [parseEther(value), ethReserve, usdtReserve]
+        });
+
+        setBuyAmount(parseBalance(price));
+      }
+    } catch (error) {
+      console.error('Failed to get price');
+    }
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+    setSellAmount('');
+    setBuyAmount('');
+  };
+
+  const swap = async () => {
+    try {
+      if (isFlipped) {
+        if (buyAmount === '') return;
+
+        await approve({
+          args: [shwapContract?.address, parseEther(buyAmount)]
+        });
+
+        await tokenToEth({ args: [parseEther(buyAmount)] });
+      } else {
+        if (sellAmount === '') return;
+
+        await ethToToken({ value: parseEther(sellAmount) });
+      }
+
+      setSellAmount('');
+      setBuyAmount('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View
@@ -24,15 +146,16 @@ export default function SwapForm({}: Props) {
           title={isFlipped ? 'Buy' : 'Sell'}
           value={sellAmount}
           token="ETH"
-          balance="1"
-          onChange={setSellAmount}
+          balance={ethBalance !== null ? parseBalance(ethBalance) : null}
+          onChange={handleInputChange}
+          isDisabled={isFlipped}
         />
 
         <IconButton
           icon="arrow-down"
           size={24}
           iconColor="white"
-          onPress={() => setIsFlipped(!isFlipped)}
+          onPress={handleFlip}
           style={styles.switchButton}
         />
 
@@ -40,13 +163,14 @@ export default function SwapForm({}: Props) {
           title={isFlipped ? 'Sell' : 'Buy'}
           value={buyAmount}
           token="USDT"
-          balance="3310.25"
-          onChange={setBuyAmount}
+          balance={usdtBalance !== null ? parseBalance(usdtBalance) : null}
+          onChange={handleInputChange}
+          isDisabled={!isFlipped}
         />
       </View>
       <Button
         mode="contained"
-        onPress={() => null}
+        onPress={swap}
         style={styles.button}
         labelStyle={styles.buttonLabel}
       >
