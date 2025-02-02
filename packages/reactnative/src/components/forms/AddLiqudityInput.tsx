@@ -1,7 +1,13 @@
+import { Address } from 'abitype';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
+import useAccount from '../../hooks/scaffold-eth/useAccount';
+import useBalance from '../../hooks/scaffold-eth/useBalance';
+import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
+import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
+import { parseBalance } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {
@@ -10,6 +16,16 @@ type Props = {
 };
 
 export default function AddLiqudityInput({ value, onChange }: Props) {
+  const account = useAccount();
+  const { data: usdtContract } = useDeployedContractInfo('USDT');
+
+  const { balance: ethBalance } = useBalance({
+    address: account.address
+  });
+  const { balance: usdtBalance } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: account.address as Address
+  });
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Liquidity</Text>
@@ -32,7 +48,9 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
         </Pressable>
       </View>
 
-      <Text style={styles.balance}>0 ETH</Text>
+      <Text style={styles.balance}>
+        {ethBalance !== null ? parseBalance(ethBalance) : null} ETH
+      </Text>
 
       <View style={[styles.inputContainer, { marginTop: 10 }]}>
         <TextInput
@@ -52,7 +70,9 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
         </Pressable>
       </View>
 
-      <Text style={styles.balance}>0 USDT</Text>
+      <Text style={styles.balance}>
+        {usdtBalance !== null ? parseBalance(usdtBalance) : null} USDT
+      </Text>
     </View>
   );
 }
