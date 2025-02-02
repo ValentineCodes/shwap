@@ -44,7 +44,7 @@ export default function Liquidity({}: Props) {
       </View>
 
       <View style={styles.inputContainer}>
-        <AddLiquidityInput value={depositAmount} onChange={setDepositAmount} />
+        <AddLiquidityInput />
 
         <WithdrawLiquidityInput
           title="Withdraw Liquidity"

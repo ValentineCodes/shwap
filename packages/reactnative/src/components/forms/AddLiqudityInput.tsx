@@ -1,5 +1,6 @@
 import { Address } from 'abitype';
-import React from 'react';
+import { formatEther, parseEther } from 'ethers';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
@@ -10,13 +11,11 @@ import { COLORS } from '../../utils/constants';
 import { parseBalance } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {
-  value: string;
-  onChange: (value: string) => void;
-};
+type Props = {};
 
-export default function AddLiqudityInput({ value, onChange }: Props) {
+export default function AddLiqudityInput({}: Props) {
   const account = useAccount();
+  const { data: shwapContract } = useDeployedContractInfo('Shwap');
   const { data: usdtContract } = useDeployedContractInfo('USDT');
 
   const { balance: ethBalance } = useBalance({
@@ -26,13 +25,44 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
     token: usdtContract?.address,
     userAddress: account.address as Address
   });
+
+  const { balance: shwapEthBalance } = useBalance({
+    // @ts-ignore
+    address: shwapContract?.address
+  });
+  const { balance: shwapUsdtBalance } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: shwapContract?.address as Address
+  });
+  1;
+  const [ethAmount, setEthAmount] = useState('');
+  const [usdtAmount, setUsdtAmount] = useState('');
+
+  const handleEthAmountChange = (value: string) => {
+    if (value.trim() === '') {
+      setEthAmount('');
+      setUsdtAmount('');
+      return;
+    }
+    const ethAmount = Number(value);
+
+    if (isNaN(ethAmount)) return;
+
+    setEthAmount(value.trim());
+
+    if (!shwapEthBalance || !shwapUsdtBalance) return;
+
+    const usdtAmount = parseEther(value) * (shwapUsdtBalance / shwapEthBalance);
+
+    setUsdtAmount(formatEther(usdtAmount));
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Liquidity</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          value={value}
+          value={ethAmount}
           mode="outlined"
           style={styles.inputField}
           outlineColor="transparent"
@@ -40,11 +70,11 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
           placeholderTextColor="#ccc"
           cursorColor="#ccc"
           placeholder="0"
-          onChangeText={onChange}
+          onChangeText={handleEthAmountChange}
         />
 
         <Pressable onPress={() => null} style={styles.addButton}>
-          <Text style={styles.addButtonLabel}>Add</Text>
+          <Text style={styles.addButtonLabel}>Deposit</Text>
         </Pressable>
       </View>
 
@@ -54,15 +84,16 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
 
       <View style={[styles.inputContainer, { marginTop: 10 }]}>
         <TextInput
-          value={value}
+          value={usdtAmount}
           mode="outlined"
           style={styles.inputField}
+          outlineStyle={{ borderWidth: 0 }}
           outlineColor="transparent"
           activeOutlineColor="transparent"
           placeholderTextColor="#ccc"
           cursorColor="#ccc"
           placeholder="0"
-          onChangeText={onChange}
+          disabled
         />
 
         <Pressable onPress={() => null} style={styles.approveButton}>
