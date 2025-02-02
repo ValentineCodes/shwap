@@ -26,6 +26,7 @@ export default function SwapForm({}: Props) {
           token="ETH"
           balance="1"
           onChange={setSellAmount}
+          isDisabled={isFlipped}
         />
 
         <IconButton
@@ -42,6 +43,7 @@ export default function SwapForm({}: Props) {
           token="USDT"
           balance="3310.25"
           onChange={setBuyAmount}
+          isDisabled={!isFlipped}
         />
       </View>
       <Button
