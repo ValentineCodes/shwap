@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import AddLiquidityInput from '../../../../../components/forms/AddLiqudityInput';
 import WithdrawLiquidityInput from '../../../../../components/forms/WithdrawLiquidityInput';
 import useAccount from '../../../../../hooks/scaffold-eth/useAccount';
@@ -28,15 +28,6 @@ export default function Liquidity({}: Props) {
 
       <View style={styles.inputContainer}>
         <AddLiquidityInput value={depositAmount} onChange={setDepositAmount} />
-
-        <Button
-          mode="contained"
-          onPress={() => null}
-          style={styles.button}
-          labelStyle={styles.buttonLabel}
-        >
-          Deposit
-        </Button>
 
         <WithdrawLiquidityInput
           title="Withdraw Liquidity"
@@ -78,15 +69,5 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 10,
     marginTop: 20
-  },
-  button: {
-    width: '90%',
-    alignSelf: 'center',
-    paddingVertical: 5,
-    backgroundColor: COLORS.primary
-  },
-  buttonLabel: {
-    fontSize: FONT_SIZE['lg'],
-    color: 'white'
   }
 });

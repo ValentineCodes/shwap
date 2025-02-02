@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
+import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {
@@ -25,7 +26,10 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
           placeholder="0"
           onChangeText={onChange}
         />
-        <Text style={styles.token}>ETH</Text>
+
+        <Pressable onPress={() => null} style={styles.addButton}>
+          <Text style={styles.addButtonLabel}>Add</Text>
+        </Pressable>
       </View>
 
       <Text style={styles.balance}>0 ETH</Text>
@@ -42,7 +46,10 @@ export default function AddLiqudityInput({ value, onChange }: Props) {
           placeholder="0"
           onChangeText={onChange}
         />
-        <Text style={styles.token}>USDT</Text>
+
+        <Pressable onPress={() => null} style={styles.approveButton}>
+          <Text style={styles.approveButtonLabel}>Approve</Text>
+        </Pressable>
       </View>
 
       <Text style={styles.balance}>0 USDT</Text>
@@ -84,6 +91,30 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE['xl'],
     fontWeight: 'bold',
     color: 'grey'
+  },
+  addButton: {
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: COLORS.primary
+  },
+  addButtonLabel: {
+    fontSize: FONT_SIZE['lg'],
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  approveButton: {
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight
+  },
+  approveButtonLabel: {
+    fontSize: FONT_SIZE['lg'],
+    fontWeight: 'bold',
+    color: '#555'
   },
   balance: {
     textAlign: 'right',
