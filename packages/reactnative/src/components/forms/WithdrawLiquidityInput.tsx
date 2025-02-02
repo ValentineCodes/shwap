@@ -1,6 +1,9 @@
+import { formatEther } from 'ethers';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
+import useAccount from '../../hooks/scaffold-eth/useAccount';
+import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
 
@@ -10,6 +13,13 @@ export default function WithdrawLiquidityInput({}: Props) {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
   const [usdtAmount, setUsdtAmount] = useState('');
+
+  const account = useAccount();
+  const { data: liquidity } = useScaffoldContractRead({
+    contractName: 'Shwap',
+    functionName: 'liquidity',
+    args: [account.address]
+  });
 
   const handleInputChange = (value: string) => {
     if (value.trim() === '') {
@@ -45,7 +55,9 @@ export default function WithdrawLiquidityInput({}: Props) {
         </Pressable>
       </View>
 
-      <Text style={styles.balance}>0 Liquidity</Text>
+      <Text style={styles.balance}>
+        {liquidity && formatEther(liquidity)} Liquidity
+      </Text>
 
       <View style={styles.outputContainer}>
         <View style={{ flex: 1 }}>
