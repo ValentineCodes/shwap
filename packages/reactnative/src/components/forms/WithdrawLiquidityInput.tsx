@@ -1,33 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { COLORS } from '../../utils/constants';
 import { FONT_SIZE } from '../../utils/styles';
 
-type Props = {
-  title: string;
-  value: string;
-  buttonLabel: string;
-  balance: string | null;
-  onSubmit: () => void;
-  onChange: (value: string) => void;
-};
+type Props = {};
 
-export default function WithdrawLiquidityInput({
-  title,
-  value,
-  buttonLabel,
-  balance,
-  onSubmit,
-  onChange
-}: Props) {
+export default function WithdrawLiquidityInput({}: Props) {
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [ethAmount, setEthAmount] = useState('');
+  const [usdtAmount, setUsdtAmount] = useState('');
+
+  const handleInputChange = (value: string) => {
+    if (value.trim() === '') {
+      setEthAmount('');
+      setUsdtAmount('');
+      return;
+    }
+    const ethAmount = Number(value);
+
+    if (isNaN(ethAmount)) return;
+
+    setWithdrawAmount(value.trim());
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>Withdraw Liquidity</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          value={value}
+          value={withdrawAmount}
           mode="outlined"
           style={styles.inputField}
           outlineColor="transparent"
@@ -35,15 +37,49 @@ export default function WithdrawLiquidityInput({
           placeholderTextColor="#ccc"
           cursorColor="#ccc"
           placeholder="0"
-          onChangeText={onChange}
+          onChangeText={handleInputChange}
         />
 
-        <Pressable onPress={onSubmit} style={styles.button}>
-          <Text style={styles.buttonLabel}>{buttonLabel}</Text>
+        <Pressable onPress={() => null} style={styles.button}>
+          <Text style={styles.buttonLabel}>Withdraw</Text>
         </Pressable>
       </View>
 
-      <Text style={styles.balance}>{balance}</Text>
+      <Text style={styles.balance}>0 Liquidity</Text>
+
+      <View style={styles.outputContainer}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontWeight: 'bold', color: 'grey' }}>ETH</Text>
+          <TextInput
+            value={ethAmount}
+            mode="outlined"
+            style={styles.inputField}
+            outlineStyle={{ borderWidth: 0 }}
+            outlineColor="transparent"
+            activeOutlineColor="transparent"
+            placeholderTextColor="#ccc"
+            cursorColor="#ccc"
+            placeholder="0"
+            disabled
+          />
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontWeight: 'bold', color: 'grey' }}>USDT</Text>
+          <TextInput
+            value={usdtAmount}
+            mode="outlined"
+            style={styles.inputField}
+            outlineStyle={{ borderWidth: 0 }}
+            outlineColor="transparent"
+            activeOutlineColor="transparent"
+            placeholderTextColor="#ccc"
+            cursorColor="#ccc"
+            placeholder="0"
+            disabled
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -87,5 +123,10 @@ const styles = StyleSheet.create({
   balance: {
     textAlign: 'right',
     fontSize: FONT_SIZE['md']
+  },
+  outputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15
   }
 });
