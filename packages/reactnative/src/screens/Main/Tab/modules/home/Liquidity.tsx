@@ -5,8 +5,9 @@ import AddLiquidityInput from '../../../../../components/forms/AddLiqudityInput'
 import WithdrawLiquidityInput from '../../../../../components/forms/WithdrawLiquidityInput';
 import useAccount from '../../../../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../../../../hooks/scaffold-eth/useBalance';
+import { useDeployedContractInfo } from '../../../../../hooks/scaffold-eth/useDeployedContractInfo';
 import useNetwork from '../../../../../hooks/scaffold-eth/useNetwork';
-import { COLORS } from '../../../../../utils/constants';
+import { useTokenBalance } from '../../../../../hooks/useTokenBalance';
 import { parseBalance } from '../../../../../utils/helperFunctions';
 import { FONT_SIZE } from '../../../../../utils/styles';
 
@@ -16,18 +17,34 @@ export default function Liquidity({}: Props) {
   const [depositAmount, setDepositAmount] = useState('');
   const network = useNetwork();
   const account = useAccount();
+  const { data: shwapContract } = useDeployedContractInfo('Shwap');
+  const { data: usdtContract } = useDeployedContractInfo('USDT');
+
   const { balance } = useBalance({
     address: account.address
+  });
+  const { balance: shwapETHBalance } = useBalance({
+    // @ts-ignore
+    address: shwapContract?.address
+  });
+  const { balance: shwapUSDTBalance } = useTokenBalance({
+    token: usdtContract?.address,
+    userAddress: shwapContract?.address
   });
   return (
     <View style={styles.container}>
       <View style={styles.balancesContainer}>
-        <Text style={styles.balance}>19.28 ETH</Text>
-        <Text style={styles.balance}>2122.59 USDT</Text>
+        <Text style={styles.balance}>
+          {shwapETHBalance !== null ? parseBalance(shwapETHBalance) : null} ETH
+        </Text>
+        <Text style={styles.balance}>
+          {shwapUSDTBalance !== null ? parseBalance(shwapUSDTBalance) : null}{' '}
+          USDT
+        </Text>
       </View>
 
       <View style={styles.inputContainer}>
-        <AddLiquidityInput value={depositAmount} onChange={setDepositAmount} />
+        <AddLiquidityInput />
 
         <WithdrawLiquidityInput
           title="Withdraw Liquidity"
