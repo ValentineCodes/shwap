@@ -1,5 +1,5 @@
 import { Address } from 'abitype';
-import { formatEther, JsonRpcProvider, parseEther } from 'ethers';
+import { JsonRpcProvider, parseEther } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -11,11 +11,12 @@ import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContrac
 import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
+import { parseBalance } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {};
 
-export default function WithdrawLiquidityInput({}: Props) {
+export default function WithdrawLiquidity({}: Props) {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
   const [usdtAmount, setUsdtAmount] = useState('');
@@ -65,11 +66,11 @@ export default function WithdrawLiquidityInput({}: Props) {
 
     if (!totalLiquidity || !ethReserve || !usdtReserve) return;
 
-    const ethAmount = parseEther(value) * (ethReserve / totalLiquidity);
-    const usdtAmount = parseEther(value) * (usdtReserve / totalLiquidity);
+    const ethAmount = (parseEther(value) * ethReserve) / totalLiquidity;
+    const usdtAmount = (parseEther(value) * usdtReserve) / totalLiquidity;
 
-    setEthAmount(formatEther(ethAmount));
-    setUsdtAmount(formatEther(usdtAmount));
+    setEthAmount(parseBalance(ethAmount));
+    setUsdtAmount(parseBalance(usdtAmount));
   };
 
   const withdrawLiquidity = async () => {
@@ -125,7 +126,7 @@ export default function WithdrawLiquidityInput({}: Props) {
       </View>
 
       <Text style={styles.balance}>
-        {liquidity && formatEther(liquidity)} Liquidity
+        {liquidity && parseBalance(liquidity)} LPT
       </Text>
 
       <View style={styles.outputContainer}>
@@ -172,7 +173,8 @@ const styles = StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 20,
     padding: 10,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginTop: 10
   },
   title: {
     fontSize: FONT_SIZE['lg'],

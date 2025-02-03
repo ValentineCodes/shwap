@@ -1,7 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import ProvideLiquidity from '../../../components/forms/ProvideLiquidity';
 import SwapForm from '../../../components/forms/SwapForm';
+import WithdrawLiquidity from '../../../components/forms/WithdrawLiquidity';
 import Liquidity from './modules/home/Liquidity';
 
 type Props = {};
@@ -15,6 +17,8 @@ export default function Home({}: Props) {
         </Text>
 
         <Liquidity />
+        <ProvideLiquidity />
+        <WithdrawLiquidity />
         <SwapForm />
       </View>
     </ScrollView>

@@ -5,7 +5,7 @@ import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import useNetwork from '../../hooks/scaffold-eth/useNetwork';
 import { parseBalance } from '../../utils/helperFunctions';
-import { FONT_SIZE, WINDOW_HEIGHT } from '../../utils/styles';
+import { FONT_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH } from '../../utils/styles';
 import Blockie from '../Blockie';
 import Button from '../Button';
 
@@ -111,7 +111,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
     padding: 20,
-    margin: 20
+    margin: 20,
+    width: WINDOW_WIDTH * 0.9
   },
   header: {
     flexDirection: 'row',

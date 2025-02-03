@@ -1,8 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import AddLiquidityInput from '../../../../../components/forms/AddLiqudityInput';
-import WithdrawLiquidityInput from '../../../../../components/forms/WithdrawLiquidityInput';
 import useBalance from '../../../../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../../../../hooks/scaffold-eth/useDeployedContractInfo';
 import { useTokenBalance } from '../../../../../hooks/useTokenBalance';
@@ -34,12 +32,6 @@ export default function Liquidity({}: Props) {
           USDT
         </Text>
       </View>
-
-      <View style={styles.inputContainer}>
-        <AddLiquidityInput />
-
-        <WithdrawLiquidityInput />
-      </View>
     </View>
   );
 }
@@ -62,10 +54,5 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: FONT_SIZE['lg']
-  },
-  inputContainer: {
-    width: '100%',
-    gap: 10,
-    marginTop: 20
   }
 });
