@@ -1,6 +1,6 @@
-# 🏗 Scaffold-ETH-Mobile
+# 🤫 Shwap
 
-🧪 **Scaffold-ETH-Mobile** is an open-source toolkit for building decentralized applications (dApps) on Ethereum and EVM-compatible blockchains. It simplifies the mobile dApp development process by providing tools to create, deploy, and interact with smart contracts.
+🧪 **Shwap** is a mobile decentralized exchange allowing anyone to be a Liquidity Provider and swap $ETH for $FUN... literally 🥳
 
 [Watch me mint a Snowman NFT!☃️](https://youtu.be/CaJTnRtLOK8)
 
@@ -8,45 +8,43 @@
 
 ### Key Features
 
-- 🧑‍💻 **Contract Debugger**: Inspect smart contract details such as address, balance, variables, and functions. It also allows real-time interaction with contracts, making development more efficient.
+- 💰 **Provide Liqudity**: Become a Liquidity Provider by depositing $ETH and $FUN into the protocol.
 
-![Contract Debugger](./assets/debugger.png)
+![Provide Liquidity](./assets/provide_liquidity.png)
 
-- 💳 **In-Built Wallet**: A secure mobile crypto wallet for managing funds, signing transactions, and interacting with multiple EVM-compatible chains.
+- 💳 **Withdraw Liquidity**: You can always withdraw your liquidity + rewards.
 
-![Wallet](./assets/wallet.png)
+![Withdraw Liquidity](./assets/withdraw_liquidity.png)
 
-- ✅ **Contract Hot Reload**: Automatically updates the mobile frontend to reflect changes made to smart contracts during development.
-- 🪝 **Custom Hooks**: A collection of React hooks with TypeScript autocompletion, simplifying contract interaction in your mobile app.
-- 🧱 **Web3 Components**: Pre-built components for quickly building mobile dApp frontends.
+- ✅ **Swap Tokens**: Swap $ETH for $FUN.
+
+![Swap](./assets/swap.png)
 
 ## Requirements
 
 Before you begin, you need to install the following tools:
 
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Yarn](https://yarnpkg.com/getting-started/install)
 - [Git](https://git-scm.com/downloads)
 - [React Native](https://reactnative.dev/docs/environment-setup?guide=native&platform=android)
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+To get started with Shwap, follow the steps below:
 
 1. Clone this repo & install dependencies
 
 ```
-git clone https://github.com/ValentineCodes/scaffold-eth-mobile.git
+git clone https://github.com/ValentineCodes/shwap.git
 
-cd scaffold-eth-mobile
+cd shwap
 
-yarn install && yarn patch-ethers
+yarn install
 
 cd packages/reactnative
 
 npx pod-install
 ```
-
-Remember to run `yarn patch-ethers` to patch ethers after installing any package
 
 2. Connect your device to your computer via WIFI-HOTSPOT
 
@@ -102,14 +100,10 @@ yarn ios
 
 You can interact with your smart contract using the `Debug Contracts` tab. You can tweak the app config in `packages/reactnative/scaffold.config.ts`.
 
-Run smart contract test with `yarn hardhat:test`
+Run smart contract test with `yarn test`
 
-- Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
-- Edit your frontend in `packages/reactnative/src/screens`
-- Edit your deployment scripts in `packages/hardhat/deploy`
+## Contributing to Shwap
 
-## Contributing to Scaffold-ETH
+We welcome contributions to Shwap!
 
-We welcome contributions to Scaffold-ETH!
-
-Please see [CONTRIBUTING.MD](https://github.com/ValentineCodes/scaffold-eth-mobile/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH.
+Please see [CONTRIBUTING.MD](https://github.com/ValentineCodes/shwap/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Shwap.
