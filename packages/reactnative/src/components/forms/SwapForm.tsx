@@ -183,7 +183,7 @@ export default function SwapForm({}: Props) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginTop: 20
+    marginTop: 10
   },
   switchButton: {
     alignSelf: 'center',
