@@ -1,5 +1,5 @@
 import { Address } from 'abitype';
-import { formatEther, JsonRpcProvider, parseEther } from 'ethers';
+import { JsonRpcProvider, parseEther } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -11,14 +11,15 @@ import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContrac
 import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { COLORS } from '../../utils/constants';
+import { parseBalance } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {};
 
-export default function WithdrawLiquidityInput({}: Props) {
+export default function WithdrawLiquidity({}: Props) {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [ethAmount, setEthAmount] = useState('');
-  const [usdtAmount, setUsdtAmount] = useState('');
+  const [funAmount, setFunAmount] = useState('');
 
   const network = useNetwork();
   const account = useAccount();
@@ -34,14 +35,14 @@ export default function WithdrawLiquidityInput({}: Props) {
       functionName: 'totalLiquidity'
     });
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   const { balance: ethReserve } = useBalance({
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: usdtReserve } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funReserve } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address as Address
   });
 
@@ -54,7 +55,7 @@ export default function WithdrawLiquidityInput({}: Props) {
     if (value.trim() === '') {
       setWithdrawAmount('');
       setEthAmount('');
-      setUsdtAmount('');
+      setFunAmount('');
       return;
     }
     const amount = Number(value);
@@ -63,13 +64,13 @@ export default function WithdrawLiquidityInput({}: Props) {
 
     setWithdrawAmount(value.trim());
 
-    if (!totalLiquidity || !ethReserve || !usdtReserve) return;
+    if (!totalLiquidity || !ethReserve || !funReserve) return;
 
-    const ethAmount = parseEther(value) * (ethReserve / totalLiquidity);
-    const usdtAmount = parseEther(value) * (usdtReserve / totalLiquidity);
+    const ethAmount = (parseEther(value) * ethReserve) / totalLiquidity;
+    const funAmount = (parseEther(value) * funReserve) / totalLiquidity;
 
-    setEthAmount(formatEther(ethAmount));
-    setUsdtAmount(formatEther(usdtAmount));
+    setEthAmount(parseBalance(ethAmount));
+    setFunAmount(parseBalance(funAmount));
   };
 
   const withdrawLiquidity = async () => {
@@ -80,7 +81,7 @@ export default function WithdrawLiquidityInput({}: Props) {
 
       setWithdrawAmount('');
       setEthAmount('');
-      setUsdtAmount('');
+      setFunAmount('');
     } catch (error) {
       console.error(error);
     }
@@ -102,6 +103,7 @@ export default function WithdrawLiquidityInput({}: Props) {
       provider.off('block');
     };
   }, [network]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Withdraw Liquidity</Text>
@@ -125,7 +127,7 @@ export default function WithdrawLiquidityInput({}: Props) {
       </View>
 
       <Text style={styles.balance}>
-        {liquidity && formatEther(liquidity)} Liquidity
+        {liquidity && parseBalance(liquidity)} LPT
       </Text>
 
       <View style={styles.outputContainer}>
@@ -146,9 +148,9 @@ export default function WithdrawLiquidityInput({}: Props) {
         </View>
 
         <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: 'bold', color: 'grey' }}>USDT</Text>
+          <Text style={{ fontWeight: 'bold', color: 'grey' }}>FUN</Text>
           <TextInput
-            value={usdtAmount}
+            value={funAmount}
             mode="outlined"
             style={styles.inputField}
             outlineStyle={{ borderWidth: 0 }}
@@ -172,7 +174,8 @@ const styles = StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 20,
     padding: 10,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginTop: 10
   },
   title: {
     fontSize: FONT_SIZE['lg'],

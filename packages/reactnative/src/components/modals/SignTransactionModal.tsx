@@ -8,7 +8,7 @@ import {
   parseFloat,
   truncateAddress
 } from '../../utils/helperFunctions';
-import { FONT_SIZE } from '../../utils/styles';
+import { FONT_SIZE, WINDOW_WIDTH } from '../../utils/styles';
 import Blockie from '../Blockie';
 import Button from '../Button';
 import 'react-native-get-random-values';
@@ -124,7 +124,8 @@ export default function SignTransactionModal({
       style={{
         backgroundColor: 'white',
         borderRadius: 30,
-        padding: 20
+        padding: 20,
+        width: WINDOW_WIDTH * 0.9
       }}
     >
       <View style={{ marginBottom: 16 }}>

@@ -25,14 +25,14 @@ export default function SwapForm({}: Props) {
   const network = useNetwork();
   const account = useAccount();
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   // token balances
   const { balance: ethBalance } = useBalance({
     address: account.address
   });
-  const { balance: usdtBalance } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funBalance } = useTokenBalance({
+    token: funContract?.address,
     userAddress: account.address as Address
   });
 
@@ -41,8 +41,8 @@ export default function SwapForm({}: Props) {
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: usdtReserve } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funReserve } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address as Address
   });
 
@@ -62,7 +62,7 @@ export default function SwapForm({}: Props) {
   });
 
   const { write: approve } = useScaffoldContractWrite({
-    contractName: 'USDT',
+    contractName: 'FUN',
     functionName: 'approve'
   });
 
@@ -83,18 +83,18 @@ export default function SwapForm({}: Props) {
       setSellAmount(value.trim());
     }
 
-    if (!ethReserve || !usdtReserve) return;
+    if (!ethReserve || !funReserve) return;
 
     try {
       if (isFlipped) {
         const price = await getPrice({
-          args: [parseEther(value), usdtReserve, ethReserve]
+          args: [parseEther(value), funReserve, ethReserve]
         });
 
         setSellAmount(parseBalance(price));
       } else {
         const price = await getPrice({
-          args: [parseEther(value), ethReserve, usdtReserve]
+          args: [parseEther(value), ethReserve, funReserve]
         });
 
         setBuyAmount(parseBalance(price));
@@ -162,8 +162,8 @@ export default function SwapForm({}: Props) {
         <AmountInput
           title={isFlipped ? 'Sell' : 'Buy'}
           value={buyAmount}
-          token="USDT"
-          balance={usdtBalance !== null ? parseBalance(usdtBalance) : null}
+          token="FUN"
+          balance={funBalance !== null ? parseBalance(funBalance) : null}
           onChange={handleInputChange}
           isDisabled={!isFlipped}
         />
@@ -183,7 +183,7 @@ export default function SwapForm({}: Props) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginTop: 20
+    marginTop: 10
   },
   switchButton: {
     alignSelf: 'center',

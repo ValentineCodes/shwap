@@ -1,8 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import AddLiquidityInput from '../../../../../components/forms/AddLiqudityInput';
-import WithdrawLiquidityInput from '../../../../../components/forms/WithdrawLiquidityInput';
 import useBalance from '../../../../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../../../../hooks/scaffold-eth/useDeployedContractInfo';
 import { useTokenBalance } from '../../../../../hooks/useTokenBalance';
@@ -13,32 +11,35 @@ type Props = {};
 
 export default function Liquidity({}: Props) {
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   const { balance: shwapETHBalance } = useBalance({
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: shwapUSDTBalance } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: shwapFUNBalance } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address
   });
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Liquidity</Text>
+
       <View style={styles.balancesContainer}>
-        <Text style={styles.balance}>
-          {shwapETHBalance !== null ? parseBalance(shwapETHBalance) : null} ETH
-        </Text>
-        <Text style={styles.balance}>
-          {shwapUSDTBalance !== null ? parseBalance(shwapUSDTBalance) : null}{' '}
-          USDT
-        </Text>
-      </View>
+        <View style={styles.ethBalanceContainer}>
+          <Image
+            source={require('../../../../../assets/images/eth-icon.png')}
+            style={styles.ethLogo}
+          />
 
-      <View style={styles.inputContainer}>
-        <AddLiquidityInput />
+          <Text style={[styles.balance, { marginLeft: -5 }]}>
+            {shwapETHBalance !== null ? parseBalance(shwapETHBalance) : null}
+          </Text>
+        </View>
 
-        <WithdrawLiquidityInput />
+        <Text style={styles.balance}>
+          🥳 {shwapFUNBalance !== null ? parseBalance(shwapFUNBalance) : null}
+        </Text>
       </View>
     </View>
   );
@@ -46,26 +47,35 @@ export default function Liquidity({}: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 20
+    width: '90%',
+    borderWidth: 1,
+    borderColor: '#aaa',
+    borderRadius: 20,
+    padding: 10,
+    alignSelf: 'center',
+    marginTop: 10
   },
   title: {
-    fontSize: FONT_SIZE['xl']
+    fontSize: FONT_SIZE['lg'],
+    fontWeight: 'bold',
+    color: 'grey'
   },
   balancesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '70%',
     marginTop: 10
   },
-  balance: {
-    fontSize: FONT_SIZE['lg']
+  ethBalanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
-  inputContainer: {
-    width: '100%',
-    gap: 10,
-    marginTop: 20
+  ethLogo: {
+    width: FONT_SIZE['xl'] * 1.7,
+    aspectRatio: 1,
+    marginLeft: -10
+  },
+  balance: {
+    fontSize: FONT_SIZE['xl']
   }
 });

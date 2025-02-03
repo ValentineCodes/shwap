@@ -1,10 +1,10 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { Shwap, USDT } from '../typechain-types';
+import { Shwap, FUN } from '../typechain-types';
 import { Signer } from 'ethers';
 
 describe('Shwap Contract E2E Tests', function () {
-  let usdt: USDT;
+  let fun: FUN;
   let shwap: Shwap;
   let owner: Signer;
   let user: Signer;
@@ -13,31 +13,31 @@ describe('Shwap Contract E2E Tests', function () {
     // Get signers
     [owner, user] = await ethers.getSigners();
 
-    // Deploy USDT contract
-    const USDT = await ethers.getContractFactory('USDT');
-    usdt = await USDT.deploy();
-    await usdt.waitForDeployment();
+    // Deploy FUN contract
+    const FUN = await ethers.getContractFactory('FUN');
+    fun = await FUN.deploy();
+    await fun.waitForDeployment();
 
-    // Deploy Shwap contract with USDT address
+    // Deploy Shwap contract with FUN address
     const Shwap = await ethers.getContractFactory('Shwap');
-    shwap = await Shwap.deploy(await usdt.getAddress());
+    shwap = await Shwap.deploy(await fun.getAddress());
     await shwap.waitForDeployment();
 
-    // Mint USDT to user for testing
-    await usdt
+    // Mint FUN to user for testing
+    await fun
       .connect(owner)
       .transfer(await user.getAddress(), ethers.parseEther('100'));
   });
 
   it('Should initialize liquidity', async function () {
-    const initialUSDT = ethers.parseEther('100');
+    const initialFUN = ethers.parseEther('100');
     const initialETH = ethers.parseEther('1');
 
-    // Approve Shwap contract to spend USDT
-    await usdt.connect(owner).approve(await shwap.getAddress(), initialUSDT);
+    // Approve Shwap contract to spend FUN
+    await fun.connect(owner).approve(await shwap.getAddress(), initialFUN);
 
     // Initialize Shwap liquidity pool
-    await shwap.connect(owner).init(initialUSDT, { value: initialETH });
+    await shwap.connect(owner).init(initialFUN, { value: initialETH });
 
     // Verify total liquidity
     const totalLiquidity = await shwap.totalLiquidity();
@@ -50,13 +50,13 @@ describe('Shwap Contract E2E Tests', function () {
   });
 
   it('Should swap ETH for tokens', async function () {
-    const initialUSDT = ethers.parseEther('100');
+    const initialFUN = ethers.parseEther('100');
     const initialETH = ethers.parseEther('1');
     const swapETH = ethers.parseEther('0.1');
 
     // Approve and initialize pool
-    await usdt.connect(owner).approve(await shwap.getAddress(), initialUSDT);
-    await shwap.connect(owner).init(initialUSDT, { value: initialETH });
+    await fun.connect(owner).approve(await shwap.getAddress(), initialFUN);
+    await shwap.connect(owner).init(initialFUN, { value: initialETH });
 
     // Perform ETH to token swap
     await expect(shwap.connect(user).ethToToken({ value: swapETH })).to.emit(
@@ -64,22 +64,22 @@ describe('Shwap Contract E2E Tests', function () {
       'EthToTokenSwap'
     );
 
-    // Check user's USDT balance increased
-    const userUSDTBalance = await usdt.balanceOf(await user.getAddress());
-    expect(userUSDTBalance).to.be.gt(ethers.parseEther('100'));
+    // Check user's FUN balance increased
+    const userFUNBalance = await fun.balanceOf(await user.getAddress());
+    expect(userFUNBalance).to.be.gt(ethers.parseEther('100'));
   });
 
   it('Should swap tokens for ETH', async function () {
-    const initialUSDT = ethers.parseEther('100');
+    const initialFUN = ethers.parseEther('100');
     const initialETH = ethers.parseEther('1');
     const swapTokens = ethers.parseEther('50');
 
     // Approve and initialize pool
-    await usdt.connect(owner).approve(await shwap.getAddress(), initialUSDT);
-    await shwap.connect(owner).init(initialUSDT, { value: initialETH });
+    await fun.connect(owner).approve(await shwap.getAddress(), initialFUN);
+    await shwap.connect(owner).init(initialFUN, { value: initialETH });
 
     // Approve Shwap contract to spend user's tokens
-    await usdt.connect(user).approve(await shwap.getAddress(), swapTokens);
+    await fun.connect(user).approve(await shwap.getAddress(), swapTokens);
 
     // Perform token to ETH swap
     await expect(shwap.connect(user).tokenToEth(swapTokens)).to.emit(
@@ -95,16 +95,16 @@ describe('Shwap Contract E2E Tests', function () {
   });
 
   it('Should deposit liquidity', async function () {
-    const initialUSDT = ethers.parseEther('100');
+    const initialFUN = ethers.parseEther('100');
     const initialETH = ethers.parseEther('1');
     const depositETH = ethers.parseEther('0.5');
 
     // Approve and initialize pool
-    await usdt.connect(owner).approve(await shwap.getAddress(), initialUSDT);
-    await shwap.connect(owner).init(initialUSDT, { value: initialETH });
+    await fun.connect(owner).approve(await shwap.getAddress(), initialFUN);
+    await shwap.connect(owner).init(initialFUN, { value: initialETH });
 
     // Approve user tokens
-    await usdt
+    await fun
       .connect(user)
       .approve(await shwap.getAddress(), ethers.parseEther('100'));
 
@@ -120,13 +120,13 @@ describe('Shwap Contract E2E Tests', function () {
   });
 
   it('Should withdraw liquidity', async function () {
-    const initialUSDT = ethers.parseEther('100');
+    const initialFUN = ethers.parseEther('100');
     const initialETH = ethers.parseEther('1');
     const withdrawAmount = ethers.parseEther('0.5');
 
     // Approve and initialize pool
-    await usdt.connect(owner).approve(await shwap.getAddress(), initialUSDT);
-    await shwap.connect(owner).init(initialUSDT, { value: initialETH });
+    await fun.connect(owner).approve(await shwap.getAddress(), initialFUN);
+    await shwap.connect(owner).init(initialFUN, { value: initialETH });
 
     // Withdraw liquidity
     await expect(shwap.connect(owner).withdraw(withdrawAmount)).to.emit(

@@ -21,7 +21,7 @@ const deployContracts: DeployFunction = async function (
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy('USDT', {
+  await deploy('FUN', {
     from: deployer,
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
@@ -30,12 +30,12 @@ const deployContracts: DeployFunction = async function (
   });
 
   // Get the deployed contract to interact with it after deploying.
-  const usdt = await hre.ethers.getContract<Contract>('USDT', deployer);
+  const fun = await hre.ethers.getContract<Contract>('FUN', deployer);
 
   await deploy('Shwap', {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    args: [await usdt.getAddress()],
+    args: [await fun.getAddress()],
     log: true
     //waitConfirmations: 5,
   });
@@ -45,4 +45,4 @@ export default deployContracts;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags Contracts
-deployContracts.tags = ['shwap', 'usdt'];
+deployContracts.tags = ['shwap', 'fun'];

@@ -1,5 +1,5 @@
 import { Address } from 'abitype';
-import { formatEther, parseEther } from 'ethers';
+import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
@@ -14,16 +14,16 @@ import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {};
 
-export default function AddLiqudityInput({}: Props) {
+export default function ProvideLiquidity({}: Props) {
   const account = useAccount();
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   const { balance: ethBalance } = useBalance({
     address: account.address
   });
-  const { balance: usdtBalance } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funBalance } = useTokenBalance({
+    token: funContract?.address,
     userAddress: account.address as Address
   });
 
@@ -31,12 +31,12 @@ export default function AddLiqudityInput({}: Props) {
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: usdtReserve } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funReserve } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address as Address
   });
   const [ethAmount, setEthAmount] = useState('');
-  const [usdtAmount, setUsdtAmount] = useState('');
+  const [funAmount, setFunAmount] = useState<bigint | null>();
 
   const { write: deposit } = useScaffoldContractWrite({
     contractName: 'Shwap',
@@ -44,14 +44,14 @@ export default function AddLiqudityInput({}: Props) {
   });
 
   const { write: approve } = useScaffoldContractWrite({
-    contractName: 'USDT',
+    contractName: 'FUN',
     functionName: 'approve'
   });
 
   const handleEthAmountChange = (value: string) => {
     if (value.trim() === '') {
       setEthAmount('');
-      setUsdtAmount('');
+      setFunAmount(null);
       return;
     }
     const ethAmount = Number(value);
@@ -60,40 +60,33 @@ export default function AddLiqudityInput({}: Props) {
 
     setEthAmount(value.trim());
 
-    if (!ethReserve || !usdtReserve) return;
+    if (!ethReserve || !funReserve) return;
 
-    const usdtAmount = parseEther(value) * (usdtReserve / ethReserve);
+    const funAmount = (parseEther(value) * funReserve) / ethReserve;
 
-    setUsdtAmount(formatEther(usdtAmount));
-  };
-
-  const approveShwap = async () => {
-    try {
-      if (usdtAmount === '') return;
-
-      await approve({
-        args: [shwapContract?.address, parseEther(usdtAmount) + 1n]
-      });
-    } catch (error) {
-      console.error(error);
-    }
+    setFunAmount(funAmount);
   };
 
   const depositLiquidity = async () => {
     try {
-      if (ethAmount === '') return;
+      if (ethAmount === '' || funAmount === null || funAmount === undefined)
+        return;
+
+      await approve({
+        args: [shwapContract?.address, funAmount + 1n]
+      });
 
       await deposit({ value: parseEther(ethAmount) });
 
       setEthAmount('');
-      setUsdtAmount('');
+      setFunAmount(null);
     } catch (error) {
       console.error(error);
     }
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add Liquidity</Text>
+      <Text style={styles.title}>Provide Liquidity</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -109,7 +102,7 @@ export default function AddLiqudityInput({}: Props) {
         />
 
         <Pressable onPress={depositLiquidity} style={styles.addButton}>
-          <Text style={styles.addButtonLabel}>Deposit</Text>
+          <Text style={styles.addButtonLabel}>Provide</Text>
         </Pressable>
       </View>
 
@@ -119,7 +112,7 @@ export default function AddLiqudityInput({}: Props) {
 
       <View style={[styles.inputContainer, { marginTop: 10 }]}>
         <TextInput
-          value={usdtAmount}
+          value={funAmount ? parseBalance(funAmount) : undefined}
           mode="outlined"
           style={styles.inputField}
           outlineStyle={{ borderWidth: 0 }}
@@ -131,13 +124,11 @@ export default function AddLiqudityInput({}: Props) {
           disabled
         />
 
-        <Pressable onPress={approveShwap} style={styles.approveButton}>
-          <Text style={styles.approveButtonLabel}>Approve</Text>
-        </Pressable>
+        <Text style={styles.pairTokenLabel}>FUN</Text>
       </View>
 
       <Text style={styles.balance}>
-        {usdtBalance !== null ? parseBalance(usdtBalance) : null} USDT
+        {funBalance !== null ? parseBalance(funBalance) : null} FUN
       </Text>
     </View>
   );
@@ -150,7 +141,8 @@ const styles = StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 20,
     padding: 10,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    marginTop: 10
   },
   title: {
     fontSize: FONT_SIZE['lg'],
@@ -197,10 +189,15 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
     backgroundColor: COLORS.primaryLight
   },
-  approveButtonLabel: {
-    fontSize: FONT_SIZE['lg'],
+  pairTokenLabel: {
+    borderWidth: 1,
+    borderRadius: 20,
+    borderColor: 'grey',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    fontSize: FONT_SIZE['xl'],
     fontWeight: 'bold',
-    color: '#555'
+    color: 'grey'
   },
   balance: {
     textAlign: 'right',
