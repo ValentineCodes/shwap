@@ -11,14 +11,14 @@ type Props = {};
 
 export default function Liquidity({}: Props) {
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   const { balance: shwapETHBalance } = useBalance({
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: shwapUSDTBalance } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: shwapFUNBalance } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address
   });
   return (
@@ -28,8 +28,7 @@ export default function Liquidity({}: Props) {
           {shwapETHBalance !== null ? parseBalance(shwapETHBalance) : null} ETH
         </Text>
         <Text style={styles.balance}>
-          {shwapUSDTBalance !== null ? parseBalance(shwapUSDTBalance) : null}{' '}
-          USDT
+          {shwapFUNBalance !== null ? parseBalance(shwapFUNBalance) : null} FUN
         </Text>
       </View>
     </View>

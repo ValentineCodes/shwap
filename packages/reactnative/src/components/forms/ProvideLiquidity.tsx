@@ -17,13 +17,13 @@ type Props = {};
 export default function ProvideLiquidity({}: Props) {
   const account = useAccount();
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
-  const { data: usdtContract } = useDeployedContractInfo('USDT');
+  const { data: funContract } = useDeployedContractInfo('FUN');
 
   const { balance: ethBalance } = useBalance({
     address: account.address
   });
-  const { balance: usdtBalance } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funBalance } = useTokenBalance({
+    token: funContract?.address,
     userAddress: account.address as Address
   });
 
@@ -31,12 +31,12 @@ export default function ProvideLiquidity({}: Props) {
     // @ts-ignore
     address: shwapContract?.address
   });
-  const { balance: usdtReserve } = useTokenBalance({
-    token: usdtContract?.address,
+  const { balance: funReserve } = useTokenBalance({
+    token: funContract?.address,
     userAddress: shwapContract?.address as Address
   });
   const [ethAmount, setEthAmount] = useState('');
-  const [usdtAmount, setUsdtAmount] = useState<bigint | null>();
+  const [funAmount, setFunAmount] = useState<bigint | null>();
 
   const { write: deposit } = useScaffoldContractWrite({
     contractName: 'Shwap',
@@ -44,14 +44,14 @@ export default function ProvideLiquidity({}: Props) {
   });
 
   const { write: approve } = useScaffoldContractWrite({
-    contractName: 'USDT',
+    contractName: 'FUN',
     functionName: 'approve'
   });
 
   const handleEthAmountChange = (value: string) => {
     if (value.trim() === '') {
       setEthAmount('');
-      setUsdtAmount(null);
+      setFunAmount(null);
       return;
     }
     const ethAmount = Number(value);
@@ -60,26 +60,26 @@ export default function ProvideLiquidity({}: Props) {
 
     setEthAmount(value.trim());
 
-    if (!ethReserve || !usdtReserve) return;
+    if (!ethReserve || !funReserve) return;
 
-    const usdtAmount = (parseEther(value) * usdtReserve) / ethReserve;
+    const funAmount = (parseEther(value) * funReserve) / ethReserve;
 
-    setUsdtAmount(usdtAmount);
+    setFunAmount(funAmount);
   };
 
   const depositLiquidity = async () => {
     try {
-      if (ethAmount === '' || usdtAmount === null || usdtAmount === undefined)
+      if (ethAmount === '' || funAmount === null || funAmount === undefined)
         return;
 
       await approve({
-        args: [shwapContract?.address, usdtAmount + 1n]
+        args: [shwapContract?.address, funAmount + 1n]
       });
 
       await deposit({ value: parseEther(ethAmount) });
 
       setEthAmount('');
-      setUsdtAmount(null);
+      setFunAmount(null);
     } catch (error) {
       console.error(error);
     }
@@ -112,7 +112,7 @@ export default function ProvideLiquidity({}: Props) {
 
       <View style={[styles.inputContainer, { marginTop: 10 }]}>
         <TextInput
-          value={usdtAmount ? parseBalance(usdtAmount) : undefined}
+          value={funAmount ? parseBalance(funAmount) : undefined}
           mode="outlined"
           style={styles.inputField}
           outlineStyle={{ borderWidth: 0 }}
@@ -124,11 +124,11 @@ export default function ProvideLiquidity({}: Props) {
           disabled
         />
 
-        <Text style={styles.pairTokenLabel}>USDT</Text>
+        <Text style={styles.pairTokenLabel}>FUN</Text>
       </View>
 
       <Text style={styles.balance}>
-        {usdtBalance !== null ? parseBalance(usdtBalance) : null} USDT
+        {funBalance !== null ? parseBalance(funBalance) : null} FUN
       </Text>
     </View>
   );
