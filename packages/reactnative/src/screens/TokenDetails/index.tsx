@@ -14,7 +14,7 @@ import { useTokenBalance } from '../../hooks/useTokenBalance';
 import { useTokenMetadata } from '../../hooks/useTokenMetadata';
 import { removeToken } from '../../store/reducers/Tokens';
 import { COLORS } from '../../utils/constants';
-import { truncateAddress } from '../../utils/helperFunctions';
+import { parseFloat, truncateAddress } from '../../utils/helperFunctions';
 import { FONT_SIZE } from '../../utils/styles';
 
 type Props = {};
@@ -67,7 +67,7 @@ export default function TokenDetails({}: Props) {
 
           <Text variant="headlineLarge" style={styles.balanceText}>
             {balance !== null &&
-              `${ethers.formatUnits(balance, token.decimals)} ${token.symbol}`}
+              `${parseFloat(ethers.formatUnits(balance, token.decimals), 4)} ${token.symbol}`}
           </Text>
         </View>
 

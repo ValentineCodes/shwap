@@ -181,7 +181,10 @@ export default function ERC20TokenTransfer() {
         account={sender}
         balance={
           tokenMetadata && balance
-            ? formatUnits(balance, tokenMetadata?.decimals)
+            ? parseFloat(
+                formatUnits(balance, tokenMetadata?.decimals),
+                4
+              ).toString()
             : null
         }
         onChange={setSender}
