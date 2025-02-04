@@ -79,6 +79,9 @@ export default function WithdrawLiquidity({}: Props) {
 
       await withdraw({ args: [parseEther(withdrawAmount)] });
 
+      await refetchLiquidity();
+      await refetchTotalLiquidity();
+
       setWithdrawAmount('');
       setEthAmount('');
       setFunAmount('');
@@ -86,23 +89,6 @@ export default function WithdrawLiquidity({}: Props) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    const provider = new JsonRpcProvider(network.provider);
-
-    (async () => {
-      provider.off('block');
-
-      provider.on('block', async blockNumber => {
-        await refetchLiquidity();
-        await refetchTotalLiquidity();
-      });
-    })();
-
-    return () => {
-      provider.off('block');
-    };
-  }, [network]);
 
   return (
     <View style={styles.container}>
