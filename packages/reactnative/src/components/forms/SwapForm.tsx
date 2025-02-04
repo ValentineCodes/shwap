@@ -1,12 +1,11 @@
 import { Address } from 'abitype';
-import { formatEther, parseEther } from 'ethers';
+import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton } from 'react-native-paper';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
-import useNetwork from '../../hooks/scaffold-eth/useNetwork';
 import useScaffoldContractRead from '../../hooks/scaffold-eth/useScaffoldContractRead';
 import useScaffoldContractWrite from '../../hooks/scaffold-eth/useScaffoldContractWrite';
 import { useTokenBalance } from '../../hooks/useTokenBalance';
@@ -22,7 +21,6 @@ export default function SwapForm({}: Props) {
   const [buyAmount, setBuyAmount] = useState('');
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const network = useNetwork();
   const account = useAccount();
   const { data: shwapContract } = useDeployedContractInfo('Shwap');
   const { data: funContract } = useDeployedContractInfo('FUN');
