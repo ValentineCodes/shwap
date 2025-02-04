@@ -93,6 +93,9 @@ export default function WithdrawLiquidity({}: Props) {
     (async () => {
       provider.off('block');
 
+      await refetchLiquidity();
+      await refetchTotalLiquidity();
+
       provider.on('block', async blockNumber => {
         await refetchLiquidity();
         await refetchTotalLiquidity();

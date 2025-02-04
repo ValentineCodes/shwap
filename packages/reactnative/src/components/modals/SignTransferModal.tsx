@@ -152,6 +152,8 @@ export default function SignTransferModal({
 
     provider.off('block');
 
+    estimateGasCost();
+
     provider.on('block', blockNumber => estimateGasCost());
 
     return () => {
