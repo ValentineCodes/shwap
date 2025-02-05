@@ -177,6 +177,39 @@ export default function SignTransactionModal({
         </View>
       </View>
 
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'flex-start',
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 5,
+          paddingHorizontal: 2,
+          paddingVertical: 1,
+          marginBottom: 10
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 15,
+            fontWeight: 'bold',
+            color: 'blue'
+          }}
+        >
+          {truncateAddress(params.contractAddress)}
+        </Text>
+        <Text
+          style={{
+            fontSize: 15,
+            fontWeight: 'bold'
+          }}
+        >
+          {' '}
+          : {params.functionName.toUpperCase()}
+        </Text>
+      </View>
+
       <Text
         variant="headlineMedium"
         style={{ textAlign: 'center', marginBottom: 16 }}
