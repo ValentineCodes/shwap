@@ -2,7 +2,7 @@
 
 🧪 **Shwap** is a mobile decentralized exchange allowing anyone to be a Liquidity Provider and swap $ETH for $FUN... literally 🥳
 
-[Watch me mint a Snowman NFT!☃️](https://youtu.be/CaJTnRtLOK8)
+[Watch me swap!](https://youtu.be/2o6DpvqqHrY)
 
 ⚙️ **Tech Stack**: Built with React Native, Hardhat, Wagmi, Viem, and TypeScript to streamline mobile dApp development.
 
