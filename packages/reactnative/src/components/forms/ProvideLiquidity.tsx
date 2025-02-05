@@ -131,18 +131,11 @@ export default function ProvideLiquidity({}: Props) {
       </Text>
 
       <View style={[styles.inputContainer, { marginTop: 10 }]}>
-        <TextInput
-          value={funAmount ? parseBalance(funAmount) : undefined}
-          mode="outlined"
-          style={styles.inputField}
-          outlineStyle={{ borderWidth: 0 }}
-          outlineColor="transparent"
-          activeOutlineColor="transparent"
-          placeholderTextColor="#ccc"
-          cursorColor="#ccc"
-          placeholder="0"
-          disabled
-        />
+        <Text
+          style={{ flex: 1, fontSize: 35, color: funAmount ? 'black' : '#ccc' }}
+        >
+          {funAmount ? parseBalance(funAmount) : 0}
+        </Text>
 
         <Text style={styles.pairTokenLabel}>FUN</Text>
       </View>

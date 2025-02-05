@@ -157,34 +157,26 @@ export default function WithdrawLiquidity({}: Props) {
       <View style={styles.outputContainer}>
         <View style={{ flex: 1 }}>
           <Text style={{ fontWeight: 'bold', color: 'grey' }}>ETH</Text>
-          <TextInput
-            value={ethAmount}
-            mode="outlined"
-            style={styles.inputField}
-            outlineStyle={{ borderWidth: 0 }}
-            outlineColor="transparent"
-            activeOutlineColor="transparent"
-            placeholderTextColor="#ccc"
-            cursorColor="#ccc"
-            placeholder="0"
-            disabled
-          />
+          <Text
+            style={[
+              styles.outputAmount,
+              { color: ethAmount ? 'black' : '#ccc' }
+            ]}
+          >
+            {ethAmount || 0}
+          </Text>
         </View>
 
         <View style={{ flex: 1 }}>
           <Text style={{ fontWeight: 'bold', color: 'grey' }}>FUN</Text>
-          <TextInput
-            value={funAmount}
-            mode="outlined"
-            style={styles.inputField}
-            outlineStyle={{ borderWidth: 0 }}
-            outlineColor="transparent"
-            activeOutlineColor="transparent"
-            placeholderTextColor="#ccc"
-            cursorColor="#ccc"
-            placeholder="0"
-            disabled
-          />
+          <Text
+            style={[
+              styles.outputAmount,
+              { color: funAmount ? 'black' : '#ccc' }
+            ]}
+          >
+            {funAmount || 0}
+          </Text>
         </View>
       </View>
     </View>
@@ -236,5 +228,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15
+  },
+  outputAmount: {
+    fontSize: 30
   }
 });
