@@ -2,7 +2,8 @@ import { Address } from 'abitype';
 import { JsonRpcProvider, parseEther } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Text, TextInput } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
@@ -51,6 +52,10 @@ export default function WithdrawLiquidity({}: Props) {
     functionName: 'withdraw'
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toast = useToast();
+
   const handleInputChange = (value: string) => {
     if (value.trim() === '') {
       setWithdrawAmount('');
@@ -77,13 +82,22 @@ export default function WithdrawLiquidity({}: Props) {
     try {
       if (withdrawAmount === '') return;
 
+      setIsLoading(true);
+
       await withdraw({ args: [parseEther(withdrawAmount)] });
+
+      toast.show('Withdrawal Successful!', { type: 'success' });
+
+      await refetchLiquidity();
+      await refetchTotalLiquidity();
 
       setWithdrawAmount('');
       setEthAmount('');
       setFunAmount('');
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -125,7 +139,14 @@ export default function WithdrawLiquidity({}: Props) {
         />
 
         <Pressable onPress={withdrawLiquidity} style={styles.button}>
-          <Text style={styles.buttonLabel}>Withdraw</Text>
+          {isLoading ? (
+            <ActivityIndicator
+              color="white"
+              style={{ paddingHorizontal: 24 }}
+            />
+          ) : (
+            <Text style={styles.buttonLabel}>Withdraw</Text>
+          )}
         </Pressable>
       </View>
 

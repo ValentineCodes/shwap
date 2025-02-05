@@ -3,6 +3,7 @@ import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
@@ -64,6 +65,10 @@ export default function SwapForm({}: Props) {
     functionName: 'approve'
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toast = useToast();
+
   const handleInputChange = async (value: string) => {
     if (value.trim() === '') {
       setSellAmount('');
@@ -113,9 +118,12 @@ export default function SwapForm({}: Props) {
       if (isFlipped) {
         if (buyAmount === '') return;
 
+        setIsLoading(true);
         await approve({
           args: [shwapContract?.address, parseEther(buyAmount)]
         });
+
+        toast.show('Token Approval Successful!', { type: 'success' });
 
         await tokenToEth({ args: [parseEther(buyAmount)] });
       } else {
@@ -124,10 +132,14 @@ export default function SwapForm({}: Props) {
         await ethToToken({ value: parseEther(sellAmount) });
       }
 
+      toast.show('Swap Successful!', { type: 'success' });
+
       setSellAmount('');
       setBuyAmount('');
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -171,6 +183,7 @@ export default function SwapForm({}: Props) {
         onPress={swap}
         style={styles.button}
         labelStyle={styles.buttonLabel}
+        loading={isLoading}
       >
         Swap
       </Button>

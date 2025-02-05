@@ -2,7 +2,8 @@ import { Address } from 'abitype';
 import { parseEther } from 'ethers';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Text, TextInput } from 'react-native-paper';
+import { useToast } from 'react-native-toast-notifications';
 import useAccount from '../../hooks/scaffold-eth/useAccount';
 import useBalance from '../../hooks/scaffold-eth/useBalance';
 import { useDeployedContractInfo } from '../../hooks/scaffold-eth/useDeployedContractInfo';
@@ -48,6 +49,10 @@ export default function ProvideLiquidity({}: Props) {
     functionName: 'approve'
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const toast = useToast();
+
   const handleEthAmountChange = (value: string) => {
     if (value.trim() === '') {
       setEthAmount('');
@@ -72,16 +77,24 @@ export default function ProvideLiquidity({}: Props) {
       if (ethAmount === '' || funAmount === null || funAmount === undefined)
         return;
 
+      setIsLoading(true);
+
       await approve({
         args: [shwapContract?.address, funAmount + 1n]
       });
 
+      toast.show('Token Approval Successful!', { type: 'success' });
+
       await deposit({ value: parseEther(ethAmount) });
+
+      toast.show('Deposit Successful!', { type: 'success' });
 
       setEthAmount('');
       setFunAmount(null);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -101,8 +114,15 @@ export default function ProvideLiquidity({}: Props) {
           onChangeText={handleEthAmountChange}
         />
 
-        <Pressable onPress={depositLiquidity} style={styles.addButton}>
-          <Text style={styles.addButtonLabel}>Provide</Text>
+        <Pressable onPress={depositLiquidity} style={styles.button}>
+          {isLoading ? (
+            <ActivityIndicator
+              color="white"
+              style={{ paddingHorizontal: 18 }}
+            />
+          ) : (
+            <Text style={styles.buttonLabel}>Provide</Text>
+          )}
         </Pressable>
       </View>
 
@@ -170,13 +190,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'grey'
   },
-  addButton: {
+  button: {
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 5,
     backgroundColor: COLORS.primary
   },
-  addButtonLabel: {
+  buttonLabel: {
     fontSize: FONT_SIZE['lg'],
     fontWeight: 'bold',
     color: 'white'
